@@ -1,6 +1,7 @@
 # Project: Listory
 
 ## Overview
+
 Listory is a media rating and commenting platform. Users can rate and review video games, series, and films. Users can create **collections** — curated groups of media items — and invite friends as co-users to those collections, allowing everyone to see each other's ratings and comments for items within the collection. Items can also exist independently outside of any collection.
 
 **Repository:** `listory-api` (backend only)
@@ -9,8 +10,9 @@ Listory is a media rating and commenting platform. Users can rate and review vid
 ## Tech Stack
 
 ### Backend (this repository)
+
 - **Framework:** Laravel 12.x (latest)
-- **PHP Version:** 8.3+
+- **PHP Version:** 8.4+
 - **Database:** PostgreSQL via Supabase
 - **Authentication:** Laravel Sanctum (token-based for mobile API)
 - **Containerization:** Laravel Sail (Docker)
@@ -18,12 +20,13 @@ Listory is a media rating and commenting platform. Users can rate and review vid
 - **CI/CD:** GitHub Actions (tests + Larastan static analysis)
 - **Static Analysis:** Larastan (PHPStan for Laravel) — level 6 minimum
 - **External APIs (future integration):**
-  - TMDB (The Movie Database) — films & series metadata
-  - IGDB (Internet Game Database via Twitch) — video game metadata
+    - TMDB (The Movie Database) — films & series metadata
+    - IGDB (Internet Game Database via Twitch) — video game metadata
 
 ## Architecture Principles
 
 ### Code Organization
+
 - Follow Laravel conventions strictly (no custom folder structures unless necessary)
 - Use Form Requests for ALL validation — never validate in controllers
 - Use API Resources (JsonResource) for ALL API responses — never return models directly
@@ -32,6 +35,7 @@ Listory is a media rating and commenting platform. Users can rate and review vid
 - Repository pattern is NOT used — use Eloquent directly in Services
 
 ### Naming Conventions
+
 - Controllers: `{Model}Controller` (e.g., `ReviewController`)
 - Form Requests: `{Action}{Model}Request` (e.g., `StoreReviewRequest`, `UpdateReviewRequest`)
 - Resources: `{Model}Resource` (e.g., `ReviewResource`, `MediaItemResource`)
@@ -42,31 +46,36 @@ Listory is a media rating and commenting platform. Users can rate and review vid
 - API routes: plural kebab-case (e.g., `/api/v1/media-items`)
 
 ### API Design Rules
+
 - ALL endpoints are prefixed with `/api/v1/`
 - Use proper HTTP methods: GET (read), POST (create), PUT/PATCH (update), DELETE (delete)
 - Use HTTP status codes correctly: 200, 201, 204, 400, 401, 403, 404, 422, 500
 - Paginate all list endpoints (default 15 per page)
 - Use consistent error response format:
+
 ```json
 {
-  "message": "Human readable message",
-  "errors": {
-    "field": ["Validation error"]
-  }
+    "message": "Human readable message",
+    "errors": {
+        "field": ["Validation error"]
+    }
 }
 ```
+
 - Use consistent success response via API Resources
 - Support `?include=` parameter for eager loading relations (e.g., `?include=reviews,genres`)
 - Support `?filter[type]=game` for filtering
 - Support `?sort=-created_at` for sorting
 
 ### Authentication Flow
+
 - Registration: POST `/api/v1/auth/register` → returns user + token
 - Login: POST `/api/v1/auth/login` → returns user + token
 - All protected routes require `Authorization: Bearer {token}` header
 - Use Sanctum's `auth:sanctum` middleware
 
 ### Database Design Philosophy
+
 - All tables use UUIDs as primary keys (better for distributed systems, looks professional)
 - Use `external_id` and `external_source` nullable columns on `media_items` for future API integration
 - Use `metadata` JSON column on `media_items` for flexible external API data storage
@@ -74,6 +83,7 @@ Listory is a media rating and commenting platform. Users can rate and review vid
 - Always add proper indexes on foreign keys and frequently queried columns
 
 ### Testing
+
 - Write Feature tests for ALL API endpoints
 - Write Unit tests for Services and Actions
 - Use `RefreshDatabase` trait in tests
@@ -82,6 +92,7 @@ Listory is a media rating and commenting platform. Users can rate and review vid
 - Tests MUST pass before merge (enforced by CI)
 
 ### Static Analysis
+
 - Larastan level 6 minimum
 - No ignored errors without justification in `phpstan-baseline.neon`
 - Run `./vendor/bin/phpstan analyse` before committing
@@ -89,6 +100,7 @@ Listory is a media rating and commenting platform. Users can rate and review vid
 ## Key Domain Concepts
 
 ### Media Items
+
 - Three types: `game`, `film`, `series`
 - Can be created manually by users (for now)
 - Future: auto-populated from TMDB/IGDB via search
@@ -97,12 +109,14 @@ Listory is a media rating and commenting platform. Users can rate and review vid
 - Items can exist independently — they do NOT require a collection
 
 ### Reviews
+
 - A user can review a media item once (unique constraint: user_id + media_item_id)
 - Contains: rating (1-10 scale), comment (optional text), spoiler flag
 - Shown in user's personal library
 - Also visible within collections to co-users
 
 ### Collections
+
 - A user creates a collection (e.g., "Anime We Watched", "Co-op Games 2025")
 - Collections have a name, description, cover image, and optional visibility setting
 - Collections contain many media items (many-to-many)
@@ -113,12 +127,14 @@ Listory is a media rating and commenting platform. Users can rate and review vid
 - A user can be invited to join a collection via invitation system
 
 ### Collection Invitations
+
 - Owner invites another user to join a collection
 - Invitation has: status (pending/accepted/declined), optional message
 - When accepted, user becomes a member of the collection
 - Members can then see each other's reviews for items in that collection
 
 ### User Library
+
 - Aggregate view of all media items a user has reviewed
 - Shows personal rating + comment
 - Filterable by media type (games/films/series)
@@ -127,11 +143,13 @@ Listory is a media rating and commenting platform. Users can rate and review vid
 ## CI/CD Pipeline (GitHub Actions)
 
 ### On every push/PR to `main` and `develop`:
+
 1. **Lint & Static Analysis:** Larastan (PHPStan level 6)
 2. **Tests:** PHPUnit/Pest with PostgreSQL service container
 3. **Both must pass** before merge is allowed
 
 ### Branch Strategy
+
 - `main` — production-ready code
 - `develop` — integration branch
 - Feature branches: `feature/{description}` (e.g., `feature/collection-crud`)
@@ -141,10 +159,12 @@ Listory is a media rating and commenting platform. Users can rate and review vid
 ## Environment Setup
 
 ### Prerequisites
+
 - Docker Desktop installed
 - Composer installed locally (for initial setup)
 
 ### Initial Setup (run once)
+
 ```bash
 # Clone the repo
 git clone https://github.com/YOUR_USERNAME/listory-api.git
@@ -163,6 +183,7 @@ composer install
 ```
 
 ### Daily Development
+
 ```bash
 sail up -d                  # Start containers
 sail artisan migrate        # Run migrations
@@ -172,12 +193,15 @@ sail down                   # Stop containers
 ```
 
 ### Useful Aliases
+
 Add to `~/.bashrc` or `~/.zshrc`:
+
 ```bash
 alias sail='sh $([ -f sail ] && echo sail || echo vendor/bin/sail)'
 ```
 
 ## File Structure (Expected)
+
 ```
 app/
 ├── Actions/
@@ -287,6 +311,7 @@ tests/
 ## Development Phases
 
 ### Phase 1: Foundation
+
 - [ ] Project setup with Sail (Docker)
 - [ ] GitHub Actions CI/CD pipeline
 - [ ] Larastan configuration
@@ -297,6 +322,7 @@ tests/
 - [ ] Tests for auth
 
 ### Phase 2: Core Features
+
 - [ ] Media Items CRUD
 - [ ] Reviews CRUD (with unique constraint)
 - [ ] User Library endpoint
@@ -304,6 +330,7 @@ tests/
 - [ ] Tests for all CRUD
 
 ### Phase 3: Collections System
+
 - [ ] Collections CRUD (create, update, delete)
 - [ ] Add/remove items to collections
 - [ ] Collection invitation send/accept/decline
@@ -312,12 +339,14 @@ tests/
 - [ ] Tests for collection flow
 
 ### Phase 4: External API Integration
+
 - [ ] TMDB service (films + series search & import)
 - [ ] IGDB service (game search & import)
 - [ ] Media search endpoint (searches external APIs)
 - [ ] Auto-populate media item from external source
 
 ### Phase 5: Enhancements
+
 - [ ] User profiles & avatars
 - [ ] Activity feed
 - [ ] Statistics (average ratings, most reviewed, etc.)
@@ -325,10 +354,11 @@ tests/
 - [ ] Advanced filtering & search
 
 ## Important Notes
+
 - This is a BACKEND-ONLY project. No Blade views, no frontend.
 - Every response must go through API Resources.
 - Always think about the mobile client consuming this API.
 - Keep the Flutter teammate in mind — API must be well-documented.
 - When in doubt, follow Laravel's official conventions.
-- Use PHP 8.3 features: enums, readonly properties, named arguments, match expressions.
+- Use PHP 8.4 features: enums, readonly properties, named arguments, match expressions, property hooks.
 - ALL code must pass Larastan level 6 and all tests before merging.
