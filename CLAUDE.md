@@ -162,43 +162,6 @@ Listory is a media rating and commenting platform. Users can rate and review vid
 - Docker Desktop installed
 - Composer installed locally (for initial setup)
 
-### Initial Setup (run once)
-
-```bash
-# Clone the repo
-git clone https://github.com/YOUR_USERNAME/listory-api.git
-cd listory-api
-
-# Install dependencies
-composer install
-
-# Start containers
-./vendor/bin/sail up -d
-
-# Generate key & run migrations
-./vendor/bin/sail artisan key:generate
-./vendor/bin/sail artisan migrate
-./vendor/bin/sail artisan db:seed
-```
-
-### Daily Development
-
-```bash
-sail up -d                  # Start containers
-sail artisan migrate        # Run migrations
-sail artisan test           # Run tests
-sail phpstan analyse        # Run static analysis
-sail down                   # Stop containers
-```
-
-### Useful Aliases
-
-Add to `~/.bashrc` or `~/.zshrc`:
-
-```bash
-alias sail='sh $([ -f sail ] && echo sail || echo vendor/bin/sail)'
-```
-
 ## File Structure (Expected)
 
 ```
