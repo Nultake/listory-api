@@ -1,0 +1,11 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    paths:
+        - app/
+
+    level: 6
+
+    ignoreErrors:
+        # Add justified ignores here with comments explaining why
