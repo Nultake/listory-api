@@ -142,7 +142,7 @@ Listory is a media rating and commenting platform. Users can rate and review vid
 
 ## CI/CD Pipeline (GitHub Actions)
 
-### On every push/PR to `main` and `develop`:
+### On every push/PR to `main`:
 
 1. **Lint & Static Analysis:** Larastan (PHPStan level 6)
 2. **Tests:** PHPUnit/Pest with PostgreSQL service container
@@ -151,10 +151,9 @@ Listory is a media rating and commenting platform. Users can rate and review vid
 ### Branch Strategy
 
 - `main` — production-ready code
-- `develop` — integration branch
 - Feature branches: `feature/{description}` (e.g., `feature/collection-crud`)
 - Bugfix branches: `fix/{description}`
-- PR required to merge into `develop` and `main`
+- PR required to merge into `main`
 
 ## Environment Setup
 
