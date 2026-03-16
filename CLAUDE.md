@@ -33,6 +33,7 @@ Listory is a media rating and commenting platform. Users can rate and review vid
 - Use Service classes for business logic — keep controllers thin
 - Use Action classes for single-purpose operations (e.g., `CreateReviewAction`, `InviteToCollectionAction`)
 - Repository pattern is NOT used — use Eloquent directly in Services
+- Fill all phpdoc property to all model classes with related relations
 
 ### Naming Conventions
 
@@ -274,14 +275,14 @@ tests/
 
 ### Phase 1: Foundation
 
-- [ ] Project setup with Sail (Docker)
-- [ ] GitHub Actions CI/CD pipeline
-- [ ] Larastan configuration
-- [ ] Database migrations (all tables)
-- [ ] Models with relationships
-- [ ] Enums (MediaType, InvitationStatus, CollectionRole)
-- [ ] Auth endpoints (register, login, logout, me)
-- [ ] Tests for auth
+- [x] Project setup with Sail (Docker)
+- [x] GitHub Actions CI/CD pipeline
+- [x] Larastan configuration
+- [x] Database migrations (all tables)
+- [x] Models with relationships
+- [x] Enums (MediaType, InvitationStatus, CollectionRole)
+- [x] Auth endpoints (register, login, logout, me, verify-email, resend-verification)
+- [x] Tests for auth
 
 ### Phase 2: Core Features
 
@@ -314,6 +315,12 @@ tests/
 - [ ] Statistics (average ratings, most reviewed, etc.)
 - [ ] Push notification infrastructure
 - [ ] Advanced filtering & search
+
+## Coding Preferences
+
+- **Use double quotes `"` for all PHP strings** — never use single quotes `'`
+- **Use Eloquent models for all database queries** — never use the `DB` facade unless necessary. All database interactions must go through model classes.
+- **Use `assertModelExists` / `assertModelMissing`** in tests instead of `assertDatabaseHas` / `assertDatabaseMissing`. Fetch the model via Eloquent query when needed.
 
 ## Important Notes
 
