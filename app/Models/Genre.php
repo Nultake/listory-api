@@ -19,6 +19,8 @@ class Genre extends Model
     use HasUuids;
 
     /**
+     * The attributes that are mass assignable.
+     *
      * @var list<string>
      */
     protected $fillable = [

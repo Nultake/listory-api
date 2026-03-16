@@ -28,6 +28,8 @@ class CollectionInvitation extends Model
     use HasFactory, HasUuids;
 
     /**
+     * The attributes that are mass assignable.
+     *
      * @var list<string>
      */
     protected $fillable = [
@@ -39,6 +41,8 @@ class CollectionInvitation extends Model
     ];
 
     /**
+     * Get the attributes that should be cast.
+     *
      * @return array<string, string>
      */
     protected function casts(): array

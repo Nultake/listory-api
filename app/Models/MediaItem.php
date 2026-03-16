@@ -37,6 +37,8 @@ class MediaItem extends Model
     use HasFactory, HasUuids, SoftDeletes;
 
     /**
+     * The attributes that are mass assignable.
+     *
      * @var list<string>
      */
     protected $fillable = [
@@ -52,6 +54,8 @@ class MediaItem extends Model
     ];
 
     /**
+     * Get the attributes that should be cast.
+     *
      * @return array<string, string>
      */
     protected function casts(): array

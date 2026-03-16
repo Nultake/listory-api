@@ -15,14 +15,29 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class EmailVerificationCode extends Model
 {
+    /**
+     * Indicates if the model should be timestamped.
+     *
+     * @var bool
+     */
     public $timestamps = false;
 
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
     protected $fillable = [
         "user_id",
         "code",
         "expires_at",
     ];
 
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
     protected function casts(): array
     {
         return [
@@ -31,6 +46,11 @@ class EmailVerificationCode extends Model
         ];
     }
 
+    /**
+     * User belongs to this e-mail
+     *
+     * @return BelongsTo<User, $this>
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
