@@ -9,6 +9,7 @@
         "php": "^8.4",
         "laravel/framework": "^13.0",
         "laravel/sanctum": "^4.3",
+        "laravel/socialite": "^5.25",
         "laravel/tinker": "^3.0",
         "ramsey/uuid": "^4.9"
     },

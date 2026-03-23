@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\GoogleLoginRequest;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Requests\Auth\VerifyEmailRequest;
@@ -14,6 +15,10 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
+use Laravel\Sanctum\PersonalAccessToken;
+use Laravel\Socialite\Facades\Socialite;
+use Laravel\Socialite\Two\GoogleProvider;
 
 class AuthController extends Controller
 {
@@ -53,12 +58,58 @@ class AuthController extends Controller
         ]);
     }
 
+    public function google(GoogleLoginRequest $request): JsonResponse
+    {
+        try {
+            /** @var GoogleProvider $driver */
+            $driver = Socialite::driver("google");
+            $googleUser = $driver->userFromToken($request->validated("token"));
+        } catch (\Exception) {
+            return response()->json([
+                "message" => "Invalid Google token.",
+            ], 401);
+        }
+
+        $user = User::query()
+            ->where("google_id", $googleUser->getId())
+            ->first();
+
+        if (! $user) {
+            $user = User::query()
+                ->where("email", $googleUser->getEmail())
+                ->first();
+
+            if ($user) {
+                $user->google_id = $googleUser->getId();
+                $user->email_verified_at ??= now();
+                $user->save();
+            } else {
+                $user = User::create([
+                    "name" => $googleUser->getName(),
+                    "email" => $googleUser->getEmail(),
+                    "password" => Str::random(32),
+                    "google_id" => $googleUser->getId(),
+                ]);
+
+                $user->email_verified_at = now();
+                $user->save();
+            }
+        }
+
+        $token = $user->createToken("auth-token")->plainTextToken;
+
+        return response()->json([
+            "user" => new UserResource($user),
+            "token" => $token,
+        ]);
+    }
+
     public function logout(Request $request): JsonResponse
     {
         /** @var User $user */
         $user = $request->user();
 
-        /** @var \Laravel\Sanctum\PersonalAccessToken $token */
+        /** @var PersonalAccessToken $token */
         $token = $user->currentAccessToken();
         $token->delete();
 
