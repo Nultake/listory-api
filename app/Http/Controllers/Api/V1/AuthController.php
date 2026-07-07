@@ -11,14 +11,13 @@ use App\Http\Resources\UserResource;
 use App\Mail\EmailVerificationCode as VerificationCodeMail;
 use App\Models\EmailVerificationCode;
 use App\Models\User;
+use App\Services\GoogleTokenVerifier;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\PersonalAccessToken;
-use Laravel\Socialite\Facades\Socialite;
-use Laravel\Socialite\Two\GoogleProvider;
 
 class AuthController extends Controller
 {
@@ -58,37 +57,35 @@ class AuthController extends Controller
         ]);
     }
 
-    public function google(GoogleLoginRequest $request): JsonResponse
+    public function google(GoogleLoginRequest $request, GoogleTokenVerifier $verifier): JsonResponse
     {
-        try {
-            /** @var GoogleProvider $driver */
-            $driver = Socialite::driver("google");
-            $googleUser = $driver->userFromToken($request->validated("token"));
-        } catch (\Exception) {
+        $googleUser = $verifier->verify((string) $request->validated("token"));
+
+        if ($googleUser === null) {
             return response()->json([
                 "message" => "Invalid Google token.",
             ], 401);
         }
 
         $user = User::query()
-            ->where("google_id", $googleUser->getId())
+            ->where("google_id", $googleUser->id)
             ->first();
 
         if (! $user) {
             $user = User::query()
-                ->where("email", $googleUser->getEmail())
+                ->where("email", $googleUser->email)
                 ->first();
 
             if ($user) {
-                $user->google_id = $googleUser->getId();
+                $user->google_id = $googleUser->id;
                 $user->email_verified_at ??= now();
                 $user->save();
             } else {
                 $user = User::create([
-                    "name" => $googleUser->getName(),
-                    "email" => $googleUser->getEmail(),
+                    "name" => $googleUser->name,
+                    "email" => $googleUser->email,
                     "password" => Str::random(32),
-                    "google_id" => $googleUser->getId(),
+                    "google_id" => $googleUser->id,
                 ]);
 
                 $user->email_verified_at = now();

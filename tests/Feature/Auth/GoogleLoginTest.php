@@ -3,51 +3,38 @@
 namespace Tests\Feature\Auth;
 
 use App\Models\User;
+use App\Services\GoogleTokenVerifier;
+use App\Services\GoogleUser;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Laravel\Socialite\Facades\Socialite;
-use Laravel\Socialite\Two\GoogleProvider;
-use Laravel\Socialite\Two\User as SocialiteUser;
-use Mockery;
+use Mockery\MockInterface;
 use Tests\TestCase;
 
 class GoogleLoginTest extends TestCase
 {
     use RefreshDatabase;
 
-    private function mockSocialiteUser(
+    private function mockGoogleUser(
         string $id = "google-123",
         string $name = "John Doe",
         string $email = "john@example.com",
     ): void {
-        $socialiteUser = Mockery::mock(SocialiteUser::class);
-        $socialiteUser->shouldReceive("getId")->andReturn($id);
-        $socialiteUser->shouldReceive("getName")->andReturn($name);
-        $socialiteUser->shouldReceive("getEmail")->andReturn($email);
-
-        $driver = Mockery::mock(GoogleProvider::class);
-        $driver->shouldReceive("userFromToken")
-            ->with("valid-google-token")
-            ->andReturn($socialiteUser);
-
-        Socialite::shouldReceive("driver")
-            ->with("google")
-            ->andReturn($driver);
+        $this->mock(GoogleTokenVerifier::class, function (MockInterface $mock) use ($id, $name, $email): void {
+            $mock->shouldReceive("verify")
+                ->with("valid-google-token")
+                ->andReturn(new GoogleUser($id, $email, $name));
+        });
     }
 
-    private function mockSocialiteFailure(): void
+    private function mockGoogleFailure(): void
     {
-        $driver = Mockery::mock(GoogleProvider::class);
-        $driver->shouldReceive("userFromToken")
-            ->andThrow(new \Exception("Invalid token"));
-
-        Socialite::shouldReceive("driver")
-            ->with("google")
-            ->andReturn($driver);
+        $this->mock(GoogleTokenVerifier::class, function (MockInterface $mock): void {
+            $mock->shouldReceive("verify")->andReturnNull();
+        });
     }
 
     public function test_new_user_can_sign_in_with_google(): void
     {
-        $this->mockSocialiteUser();
+        $this->mockGoogleUser();
 
         $response = $this->postJson("/api/v1/auth/google", [
             "token" => "valid-google-token",
@@ -75,7 +62,7 @@ class GoogleLoginTest extends TestCase
             "email" => "john@example.com",
         ]);
 
-        $this->mockSocialiteUser();
+        $this->mockGoogleUser();
 
         $response = $this->postJson("/api/v1/auth/google", [
             "token" => "valid-google-token",
@@ -95,7 +82,7 @@ class GoogleLoginTest extends TestCase
 
         $this->assertNull($existingUser->google_id);
 
-        $this->mockSocialiteUser();
+        $this->mockGoogleUser();
 
         $response = $this->postJson("/api/v1/auth/google", [
             "token" => "valid-google-token",
@@ -117,7 +104,7 @@ class GoogleLoginTest extends TestCase
 
         $this->assertNull($existingUser->email_verified_at);
 
-        $this->mockSocialiteUser();
+        $this->mockGoogleUser();
 
         $response = $this->postJson("/api/v1/auth/google", [
             "token" => "valid-google-token",
@@ -132,7 +119,7 @@ class GoogleLoginTest extends TestCase
 
     public function test_google_login_fails_with_invalid_token(): void
     {
-        $this->mockSocialiteFailure();
+        $this->mockGoogleFailure();
 
         $response = $this->postJson("/api/v1/auth/google", [
             "token" => "invalid-token",
@@ -152,7 +139,7 @@ class GoogleLoginTest extends TestCase
 
     public function test_google_login_returns_correct_response_structure(): void
     {
-        $this->mockSocialiteUser();
+        $this->mockGoogleUser();
 
         $response = $this->postJson("/api/v1/auth/google", [
             "token" => "valid-google-token",
