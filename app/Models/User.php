@@ -5,23 +5,25 @@ namespace App\Models;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Carbon;
 use Laravel\Sanctum\HasApiTokens;
 
 /**
  * @property string $id
  * @property string $name
  * @property string $email
- * @property \Illuminate\Support\Carbon|null $email_verified_at
+ * @property Carbon|null $email_verified_at
+ * @property string|null $google_id
  * @property string $password
  * @property string|null $remember_token
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Review> $reviews
  * @property-read \Illuminate\Database\Eloquent\Collection<int, MediaItem> $mediaItems
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Collection> $ownedCollections
@@ -43,6 +45,7 @@ class User extends Authenticatable
         "name",
         "email",
         "password",
+        "google_id",
     ];
 
     /**
@@ -53,6 +56,7 @@ class User extends Authenticatable
     protected $hidden = [
         "password",
         "remember_token",
+        "google_id",
     ];
 
     /**
