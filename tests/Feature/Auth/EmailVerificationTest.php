@@ -113,6 +113,33 @@ class EmailVerificationTest extends TestCase
             ->assertJsonValidationErrors(["code"]);
     }
 
+    public function test_verification_is_rate_limited(): void
+    {
+        $user = User::factory()->unverified()->create();
+
+        EmailVerificationCodeModel::create([
+            "user_id" => $user->id,
+            "code" => "123456",
+            "expires_at" => now()->addMinutes(15),
+        ]);
+
+        for ($attempt = 0; $attempt < 5; $attempt++) {
+            $this->actingAs($user)
+                ->postJson("/api/v1/auth/verify-email", [
+                    "code" => "999999",
+                ])->assertStatus(422);
+        }
+
+        $response = $this->actingAs($user)
+            ->postJson("/api/v1/auth/verify-email", [
+                "code" => "123456",
+            ]);
+
+        $response->assertStatus(429);
+
+        $this->assertNull($user->fresh()?->email_verified_at);
+    }
+
     public function test_unauthenticated_user_cannot_verify_email(): void
     {
         $response = $this->postJson("/api/v1/auth/verify-email", [
