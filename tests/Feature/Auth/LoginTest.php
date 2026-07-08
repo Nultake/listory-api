@@ -65,6 +65,28 @@ class LoginTest extends TestCase
             ->assertJsonValidationErrors(["password"]);
     }
 
+    public function test_login_is_rate_limited(): void
+    {
+        User::factory()->create([
+            "email" => "john@example.com",
+            "password" => "password123",
+        ]);
+
+        for ($attempt = 0; $attempt < 10; $attempt++) {
+            $this->postJson("/api/v1/auth/login", [
+                "email" => "john@example.com",
+                "password" => "wrong-password",
+            ])->assertStatus(401);
+        }
+
+        $response = $this->postJson("/api/v1/auth/login", [
+            "email" => "john@example.com",
+            "password" => "password123",
+        ]);
+
+        $response->assertStatus(429);
+    }
+
     public function test_user_can_logout(): void
     {
         $user = User::factory()->create();

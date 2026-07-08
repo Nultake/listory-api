@@ -11,8 +11,9 @@ class GoogleTokenVerifier
     /**
      * Verify a Google ID token (JWT) and return the authenticated user.
      *
-     * Returns null when the token is invalid, expired, or issued for a
-     * different audience than the configured client ID.
+     * Returns null when the token is invalid, expired, issued for a
+     * different audience than the configured client ID, or when Google
+     * has not verified ownership of the email address.
      */
     public function verify(string $idToken): ?GoogleUser
     {
@@ -23,6 +24,10 @@ class GoogleTokenVerifier
         }
 
         if (! is_array($payload) || ! isset($payload["sub"], $payload["email"])) {
+            return null;
+        }
+
+        if (($payload["email_verified"] ?? false) !== true) {
             return null;
         }
 
