@@ -286,11 +286,11 @@ tests/
 
 ### Phase 2: Core Features
 
-- [ ] Media Items CRUD
-- [ ] Reviews CRUD (with unique constraint)
-- [ ] User Library endpoint
-- [ ] Genre seeder + association
-- [ ] Tests for all CRUD
+- [x] Media Items CRUD
+- [x] Reviews CRUD (with unique constraint)
+- [x] User Library endpoint
+- [x] Genre seeder + association
+- [x] Tests for all CRUD
 
 ### Phase 3: Collections System
 
