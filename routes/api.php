@@ -1,6 +1,10 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\GenreController;
+use App\Http\Controllers\Api\V1\MediaItemController;
+use App\Http\Controllers\Api\V1\ReviewController;
+use App\Http\Controllers\Api\V1\UserLibraryController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix("v1")->group(function () {
@@ -20,5 +24,11 @@ Route::prefix("v1")->group(function () {
             Route::post("auth/verify-email", [AuthController::class, "verifyEmail"]);
             Route::post("auth/resend-verification", [AuthController::class, "resendVerificationCode"]);
         });
+
+        // Core resources
+        Route::apiResource("media-items", MediaItemController::class);
+        Route::apiResource("reviews", ReviewController::class);
+        Route::get("genres", [GenreController::class, "index"]);
+        Route::get("library", [UserLibraryController::class, "index"]);
     });
 });
