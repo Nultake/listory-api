@@ -5,10 +5,11 @@ namespace App\Models;
 use Database\Factories\CollectionFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 /**
  * @property string $id
@@ -17,8 +18,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $cover_image
  * @property bool $is_public
  * @property string $user_id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property-read User $owner
  * @property-read \Illuminate\Database\Eloquent\Collection<int, User> $members
  * @property-read \Illuminate\Database\Eloquent\Collection<int, MediaItem> $mediaItems
@@ -86,5 +87,13 @@ class Collection extends Model
     public function invitations(): HasMany
     {
         return $this->hasMany(CollectionInvitation::class);
+    }
+
+    /**
+     * Determine whether the given user belongs to this collection.
+     */
+    public function hasMember(User $user): bool
+    {
+        return $this->members()->whereKey($user->id)->exists();
     }
 }
