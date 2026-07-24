@@ -1,6 +1,10 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\CollectionController;
+use App\Http\Controllers\Api\V1\CollectionInvitationController;
+use App\Http\Controllers\Api\V1\CollectionItemController;
+use App\Http\Controllers\Api\V1\CollectionMemberController;
 use App\Http\Controllers\Api\V1\GenreController;
 use App\Http\Controllers\Api\V1\MediaItemController;
 use App\Http\Controllers\Api\V1\ReviewController;
@@ -30,5 +34,18 @@ Route::prefix("v1")->group(function () {
         Route::apiResource("reviews", ReviewController::class);
         Route::get("genres", [GenreController::class, "index"]);
         Route::get("library", [UserLibraryController::class, "index"]);
+
+        // Collections
+        Route::apiResource("collections", CollectionController::class);
+        Route::post("collections/{collection}/items", [CollectionItemController::class, "store"]);
+        Route::delete("collections/{collection}/items/{mediaItem}", [CollectionItemController::class, "destroy"]);
+        Route::get("collections/{collection}/members", [CollectionMemberController::class, "index"]);
+        Route::delete("collections/{collection}/members/{member}", [CollectionMemberController::class, "destroy"]);
+        Route::post("collections/{collection}/invitations", [CollectionInvitationController::class, "store"]);
+
+        // Invitations (received by the authenticated user)
+        Route::get("invitations", [CollectionInvitationController::class, "index"]);
+        Route::post("invitations/{invitation}/accept", [CollectionInvitationController::class, "accept"]);
+        Route::post("invitations/{invitation}/decline", [CollectionInvitationController::class, "decline"]);
     });
 });

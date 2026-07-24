@@ -294,12 +294,12 @@ tests/
 
 ### Phase 3: Collections System
 
-- [ ] Collections CRUD (create, update, delete)
-- [ ] Add/remove items to collections
-- [ ] Collection invitation send/accept/decline
-- [ ] Collection member management
-- [ ] Collection detail view (items with all members' reviews)
-- [ ] Tests for collection flow
+- [x] Collections CRUD (create, update, delete)
+- [x] Add/remove items to collections
+- [x] Collection invitation send/accept/decline
+- [x] Collection member management
+- [x] Collection detail view (items with all members' reviews)
+- [x] Tests for collection flow
 
 ### Phase 4: External API Integration
 
